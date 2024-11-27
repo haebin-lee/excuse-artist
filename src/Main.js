@@ -9,6 +9,7 @@ import { PacmanLoader } from "react-spinners";
 function Main() {
   const { user, logout, isAuthenticate } = useAuth();
   const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +38,6 @@ function Main() {
         .replace("{reality}", realityTemplate[reality].instruction)
         .replace("{guideline", realityTemplate[reality].guideline)
         .replace("{history}", JSON.stringify(history));
-      // console.log("fullPrompt", fullPrompt);
 
       const chatResponse = await client.chat.complete({
         model: "pixtral-12b-2409",
@@ -147,236 +147,233 @@ function Main() {
     setResult("");
   };
   return (
-    <div className="min-h-screen w-full bg-gray-50">
-      <div className="flex flex-col h-full max-w-4xl mx-auto p-6">
-        <div className="relative">
-          {/* Title Section - Centered */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Excuse Smith
-            </h1>
-            <p className="text-gray-600">
-              Professional Excuse Craftsman at Your Service
-            </p>
-          </div>
+    <div
+      style={{
+        background: "linear-gradient(to bottom, #ffffff, #B3C9CF)",
+      }}
+      className="min-h-screen w-full bg-cover bg-center bg-fixed"
+    >
+      <div className="flex flex-col items-center">
+        <div className="flex flex-col max-w-4xl w-full p-6">
+          <div className="relative">
+            {/* Title Section - Centered */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Excuse Smith
+              </h1>
+              <p className="text-gray-600">
+                Professional Excuse Craftsman at Your Service
+              </p>
+            </div>
 
-          {/* Auth Section - Absolutely positioned to the right top */}
-          <div className="absolute top-0 right-0">
-            {!isAuthenticate && <GoogleLoginComponent />}
-            {isAuthenticate && (
-              <div className="flex items-center gap-2 p-1">
-                <p className="text-sm text-gray-600">{user.name}</p>
-                <button
-                  className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-red-50 text-red-600 hover:bg-red-100"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
+            {/* Auth Section - Absolutely positioned to the right top */}
+            <div className="absolute top-0 right-0">
+              {!isAuthenticate && <GoogleLoginComponent />}
+              {isAuthenticate && (
+                <div className="flex items-center gap-2 p-1">
+                  <p className="text-sm text-gray-600">{user.name}</p>
+                  <button
+                    className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-red-50 text-red-600 hover:bg-red-100"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mb-6 min-h-4xl">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-48">
+                <PacmanLoader color="#3B82F6" size={25} margin={2} />
               </div>
+            ) : (
+              result && (
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                  <div className="p-6">
+                    <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
+                      {result}
+                    </p>
+                  </div>
+                  <div className="px-6 py-3 bg-gray-50 flex justify-end items-center gap-2 border-t border-gray-100">
+                    <button
+                      onClick={handleSpeak}
+                      className={`p-2 rounded-full transition-all ${
+                        isPlaying
+                          ? "bg-blue-100 text-blue-600"
+                          : "hover:bg-gray-200 text-gray-600"
+                      }`}
+                      title={isPlaying ? "Stop Speaking" : "Listen"}
+                    >
+                      <Volume2 size={20} />
+                    </button>
+
+                    <button
+                      onClick={handleCopy}
+                      className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-all"
+                      title="Copy to Clipboard"
+                    >
+                      <Copy size={20} />
+                    </button>
+
+                    <button
+                      onClick={handleEmailShare}
+                      className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-all"
+                      title="Share via Email"
+                    >
+                      <Mail size={20} />
+                    </button>
+                  </div>
+                </div>
+              )
             )}
           </div>
-        </div>
-        <div className="mb-6 min-h-4xl">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-48">
-              <PacmanLoader color="#3B82F6" size={25} margin={2} />
+          <div className="flex items-start gap-4 mb-2">
+            <div className="flex flex-1 items-center">
+              <p className="mr-2 font-medium">To: </p>
+              <input
+                placeholder=""
+                className="w-full px-4 py-2 text-sm border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                onChange={(e) => setWhom(e.target.value)}
+                value={whom}
+              />
             </div>
-          ) : (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="p-6">
-                <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
-                  {result}
-                </p>
-              </div>
-              <div className="px-6 py-3 bg-gray-50 flex justify-end items-center gap-2 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setReality("realistic")}
+              className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
+                reality === "realistic"
+                  ? "bg-purple-500 text-white shadow-md scale-105"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              plausible
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setReality("unrealistic")}
+              className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
+                reality === "unrealistic"
+                  ? "bg-purple-500 text-white shadow-md scale-105"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              creative
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setForm("short")}
+              className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
+                form === "short"
+                  ? "bg-orange-500 text-white shadow-md scale-105"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              quick message
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setForm("email")}
+              className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
+                form === "email"
+                  ? "bg-orange-500 text-white shadow-md scale-105"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              formal email
+            </button>
+          </div>
+          <div className="w-full">
+            <form onSubmit={sendMessage}>
+              <textarea
+                placeholder="Tell me your situation. I promise to keep your secret safe"
+                rows={4}
+                className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 mb-4 resize-y min-h-[100px] max-h-[400px]"
+                onChange={(e) => setPrompt(e.target.value)}
+                value={prompt}
+              />
+
+              <div className="flex gap-3">
                 <button
-                  onClick={handleSpeak}
-                  className={`p-2 rounded-full transition-all ${
-                    isPlaying
-                      ? "bg-blue-100 text-blue-600"
-                      : "hover:bg-gray-200 text-gray-600"
+                  type="submit"
+                  className="flex justify-center items-center gap-1 w-full bg-blue-500 text-white py-2 px-4 rounded-xl text-lg font-medium hover:bg-blue-600 transition-colors"
+                >
+                  <MessageCircle size={20} />
+                  Craft My Excuse
+                </button>
+                {isAuthenticate && result && (
+                  <button
+                    type="button"
+                    onClick={saveHistory}
+                    className="flex justify-center items-center gap-1 w-full bg-emerald-500 text-white py-2 px-4 rounded-xl text-lg font-medium hover:bg-emerald-600 transition-colors"
+                  >
+                    <History size={20} />
+                    Save History
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className="flex-1 flex justify-center items-center gap-1 bg-gray-500 text-white py-2 px-2 rounded-xl text-lg font-medium hover:bg-gray-600 transition-colors"
+                  onClick={handleClear}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </form>
+          </div>
+          {/* Previous Excuses */}
+          {isAuthenticate && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="flex items-center justify-between w-full px-6 py-3 bg-white rounded-lg shadow-sm hover:bg-gray-50"
+              >
+                <span className="font-medium">
+                  Previous Excuses ({history && history.length})
+                </span>
+                <svg
+                  className={`w-5 h-5 transition-transform ${
+                    showHistory ? "rotate-180" : ""
                   }`}
-                  title={isPlaying ? "Stop Speaking" : "Listen"}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <Volume2 size={20} />
-                </button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
 
-                <button
-                  onClick={handleCopy}
-                  className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-all"
-                  title="Copy to Clipboard"
-                >
-                  <Copy size={20} />
-                </button>
-
-                <button
-                  onClick={handleEmailShare}
-                  className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-all"
-                  title="Share via Email"
-                >
-                  <Mail size={20} />
-                </button>
-              </div>
+              {showHistory && (
+                <div className="mt-4 space-y-4 max-h-96 overflow-y-auto">
+                  {history.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-lg shadow-sm p-4"
+                    >
+                      <div className="flex justify-between items-center mb-2 text-sm text-gray-500">
+                        <span>Excuse #{index}</span>
+                        <span>{formatDate(item.created_at)}</span>
+                      </div>
+                      <div className="border-l-4 border-blue-200 pl-4 mb-3">
+                        <p className="text-gray-600 italic">{item.prompt}</p>
+                      </div>
+                      <p className="text-gray-800">{item.result}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
-        {/* <div className="mb-6 min-h-4xl">
-          <div className="bg-white rounded-xl shadow-sm p-3">
-            <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap p-3">
-              {result}
-            </p>
-            <div className="flex gap-2 justify-end items-end">
-              <button onClick={handleSpeak}>
-                {isPlaying ? "stop" : "speak"}
-              </button>
-              <button onClick={handleCopy}>copy</button>
-              <button onClick={handleEmailShare}>mail</button>
-            </div>
-          </div>
-        </div> */}
-
-        <div className="flex items-start gap-4 mb-2">
-          <div className="flex flex-1 items-center">
-            <p className="mr-2 font-medium">To: </p>
-            <input
-              placeholder=""
-              className="w-full px-4 py-2 text-sm border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              onChange={(e) => setWhom(e.target.value)}
-              value={whom}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => setReality("realistic")}
-            className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
-              reality === "realistic"
-                ? "bg-purple-500 text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            plausible
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setReality("unrealistic")}
-            className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
-              reality === "unrealistic"
-                ? "bg-purple-500 text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            creative
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setForm("short")}
-            className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
-              form === "short"
-                ? "bg-orange-500 text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            quick message
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setForm("email")}
-            className={`px-4 py-2 rounded-3xl text-sm font-medium transition-all ${
-              form === "email"
-                ? "bg-orange-500 text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            formal email
-          </button>
-        </div>
-
-        <div className="w-full">
-          <form onSubmit={sendMessage}>
-            <textarea
-              placeholder="Tell me your situation. I promise to keep your secret safe"
-              rows={4}
-              className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 mb-4 resize-y min-h-[100px] max-h-[400px]"
-              onChange={(e) => setPrompt(e.target.value)}
-              value={prompt}
-            />
-
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                className="flex justify-center items-center gap-1 w-full bg-blue-500 text-white py-2 px-4 rounded-xl text-lg font-medium hover:bg-blue-600 transition-colors"
-              >
-                <MessageCircle size={20} />
-                Craft My Excuse
-              </button>
-              {isAuthenticate && result && (
-                <button
-                  type="button"
-                  onClick={saveHistory}
-                  className="flex justify-center items-center gap-1 w-full bg-emerald-500 text-white py-2 px-4 rounded-xl text-lg font-medium hover:bg-emerald-600 transition-colors"
-                >
-                  <History size={20} />
-                  Save History
-                </button>
-              )}
-
-              <button
-                type="button"
-                className="flex-1 flex justify-center items-center gap-1 bg-gray-500 text-white py-2 px-2 rounded-xl text-lg font-medium hover:bg-gray-600 transition-colors"
-                onClick={handleClear}
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* History */}
-        {isAuthenticate && (
-          <details className="mt-4">
-            <summary className="flex items-center justify-between w-full px-6 py-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer">
-              <span className="font-medium">
-                Previous Excuses ({history && history.length})
-              </span>
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </summary>
-
-            <div className="mt-4 space-y-4 overflow-y-auto min-h-[200px]">
-              {history.map((item, index) => {
-                return (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-lg shadow-sm p-4"
-                  >
-                    <div className="flex justify-between items-center mb-2 text-sm text-gray-500">
-                      <span>Excuse #{index}</span>
-                      <span>{formatDate(item.created_at)}</span>
-                    </div>
-                    <div className="border-l-4 border-blue-200 pl-4 mb-3">
-                      <p className="text-gray-600 italic">{item.prompt}</p>
-                    </div>
-                    <p className="text-gray-800">{item.result}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </details>
-        )}
       </div>
     </div>
   );
