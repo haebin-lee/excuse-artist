@@ -109,6 +109,7 @@ function Main() {
   };
   const handleLogout = async (e) => {
     e.preventDefault();
+    handleClear(e);
     logout();
   };
 
