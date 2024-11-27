@@ -1,56 +1,34 @@
-import { useEffect, useState } from "react";
-import { Mistral } from "@mistralai/mistralai";
-import GoogleLoginComponent from "./GoogleLogin";
-import { useAuth } from "./context/AuthContext";
 import { Copy, History, Mail, MessageCircle, Volume2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { PacmanLoader } from "react-spinners";
+import GoogleLoginComponent from "./GoogleLogin";
+import { useAuth } from "./context/AuthContext";
+import useAI from "./hooks/useAI";
+import useSaveHistory from "./hooks/useSaveHistory";
+import useGetHistory from "./hooks/useGetHistory";
 
 function Main() {
   const { user, logout, isAuthenticate } = useAuth();
-  const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [whom, setWhom] = useState("");
   const [reality, setReality] = useState("realistic");
   const [form, setForm] = useState("short");
-  const client = new Mistral({ apiKey: process.env.REACT_APP_MISTRAL_API_KEY });
+  const { saveHistory } = useSaveHistory();
+  const { sendPrompt, isLoading } = useAI();
 
+  const [history, getHistory] = useGetHistory(user, isAuthenticate);
   useEffect(() => {
     getHistory();
   }, [isAuthenticate, user]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    if (!prompt) {
-      return;
-    }
-
-    try {
-      const fullPrompt = process.env.REACT_APP_PROMPT?.replace("{whom}", whom)
-        .replace("{form}", getFormPrompt(form))
-        .replace("{situation}", prompt)
-        .replace("{reality}", realityTemplate[reality].instruction)
-        .replace("{guideline", realityTemplate[reality].guideline)
-        .replace("{history}", JSON.stringify(history));
-
-      const chatResponse = await client.chat.complete({
-        model: "pixtral-12b-2409",
-        messages: [{ role: "user", content: fullPrompt }],
-      });
-      const responseData = chatResponse.choices[0].message.content;
-      // console.log("responseData", responseData);
-      setResult(responseData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setResult("Sorry, I couldn't understand that. Please try again.");
-    }
+    const response = await sendPrompt(prompt, whom, form, reality, history);
+    setResult(response);
   };
 
   const handleSpeak = () => {
@@ -71,42 +49,13 @@ function Main() {
     setIsPlaying(true);
     window.speechSynthesis.speak(utterance);
   };
-  const saveHistory = async (event) => {
+
+  const handleSaveHistory = async (event) => {
     event.preventDefault();
-    // console.log("prompt", prompt, "result", result);
-
-    const response = await fetch(
-      "https://gfsl84i3p6.execute-api.us-east-1.amazonaws.com/stage/history",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          prompt: prompt,
-          result: result,
-          created_at: new Date().toISOString(),
-        }),
-      }
-    );
-    if (response.ok) {
-      getHistory();
-      handleClear(event);
-    }
+    await saveHistory(user, prompt, result);
+    getHistory();
   };
 
-  const getHistory = async () => {
-    if (isAuthenticate) {
-      const response = await fetch(
-        `https://gfsl84i3p6.execute-api.us-east-1.amazonaws.com/stage/history?email=${user.email}`
-      );
-      if (response.ok) {
-        const responseData = await response.json();
-        setHistory(responseData.data);
-      }
-    }
-  };
   const handleLogout = async (e) => {
     e.preventDefault();
     handleClear(e);
@@ -133,12 +82,6 @@ function Main() {
     window.location.href = mailtoLink;
   };
 
-  const getFormPrompt = (form) => {
-    return form === "short"
-      ? "A short, punchy message that can be sent via text or chat"
-      : "A longer, more elaborate email message";
-  };
-
   const handleClear = async (e) => {
     e.preventDefault();
 
@@ -146,6 +89,7 @@ function Main() {
     setWhom("");
     setResult("");
   };
+
   return (
     <div
       style={{
@@ -156,7 +100,6 @@ function Main() {
       <div className="flex flex-col items-center">
         <div className="flex flex-col max-w-4xl w-full p-6">
           <div className="relative">
-            {/* Title Section - Centered */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
                 Excuse Smith
@@ -166,7 +109,6 @@ function Main() {
               </p>
             </div>
 
-            {/* Auth Section - Absolutely positioned to the right top */}
             <div className="absolute top-0 right-0">
               {!isAuthenticate && <GoogleLoginComponent />}
               {isAuthenticate && (
@@ -307,7 +249,7 @@ function Main() {
                 {isAuthenticate && result && (
                   <button
                     type="button"
-                    onClick={saveHistory}
+                    onClick={handleSaveHistory}
                     className="flex justify-center items-center gap-1 w-full bg-emerald-500 text-white py-2 px-4 rounded-xl text-lg font-medium hover:bg-emerald-600 transition-colors"
                   >
                     <History size={20} />
@@ -378,20 +320,6 @@ function Main() {
     </div>
   );
 }
-const realityTemplate = {
-  realistic: {
-    instruction:
-      "A professional, believable excuse appropriate for academic context",
-    guideline:
-      "-Base on common real-world situations\n- Include specific, verifiable details\n- Maintain professional tone\n- Focus on solutions and next steps\n",
-  },
-  unrealistic: {
-    instruction:
-      "An extremely humorous excuse based on unlikely but theoretically possible situations",
-    guideline:
-      " -Craft scenarios that are highly improbable but not impossible\n- Exaggerate common mishaps or coincidences to absurd levels\n- Use playful, over-the-top humor\n- Include funny, relatable details that push the boundaries of believability\n- Sprinkle emojis throughout for added fun\n- Maintain an underlying tone of respect\n",
-  },
-};
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
