@@ -10,6 +10,7 @@ const useGetHistory = (user, isAuthenticate) => {
       );
       if (response.ok) {
         const responseData = await response.json();
+        console.log("responseData", responseData);
         setHistory(responseData.data);
       }
     }
