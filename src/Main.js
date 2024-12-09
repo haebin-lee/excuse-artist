@@ -7,18 +7,28 @@ import { useAuth } from "./context/AuthContext";
 import useAI from "./hooks/useAI";
 import useSaveHistory from "./hooks/useSaveHistory";
 import useGetHistory from "./hooks/useGetHistory";
+import useAIImage from "./hooks/useAIImage";
 
 function Main() {
   const { user, logout, isAuthenticate } = useAuth();
   const [showHistory, setShowHistory] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState("");
+  const [resultImage, setResultImage] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [whom, setWhom] = useState("");
   const [reality, setReality] = useState("realistic");
   const [form, setForm] = useState("short");
   const { saveHistory } = useSaveHistory();
   const { sendPrompt, isLoading } = useAI();
+  const { sendPromptImage, isLoading: isLoadingImage } = useAIImage();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleShowImage = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setShowModal(true);
+  };
 
   const [history, getHistory] = useGetHistory(user, isAuthenticate);
   useEffect(() => {
@@ -29,6 +39,9 @@ function Main() {
     e.preventDefault();
     const response = await sendPrompt(prompt, whom, form, reality, history);
     setResult(response);
+
+    const imageResponse = await sendPromptImage(prompt, reality);
+    setResultImage(imageResponse.url);
   };
 
   const handleSpeak = () => {
@@ -52,7 +65,7 @@ function Main() {
 
   const handleSaveHistory = async (event) => {
     event.preventDefault();
-    await saveHistory(user, prompt, result);
+    await saveHistory(user, prompt, result, resultImage);
     getHistory();
   };
 
@@ -105,7 +118,7 @@ function Main() {
                 Excuse Smith
               </h1>
               <p className="text-gray-600">
-                Professional Excuse Craftsman at Your Service
+                Professional Excuse Craftsman for all your needs
               </p>
             </div>
 
@@ -166,6 +179,22 @@ function Main() {
                       <Mail size={20} />
                     </button>
                   </div>
+                </div>
+              )
+            )}
+          </div>
+          <div className="mb-6 min-h-4xl">
+            {isLoadingImage ? (
+              <div className="flex justify-center items-center h-48">
+                <PacmanLoader color="#3B82F6" size={25} margin={2} />
+              </div>
+            ) : (
+              resultImage && (
+                <div className="max-w-3xl mx-auto">
+                  <img
+                    src={resultImage}
+                    className="w-full rounded-lg shadow-lg"
+                  />
                 </div>
               )
             )}
@@ -309,6 +338,34 @@ function Main() {
                         <p className="text-gray-600 italic">{item.prompt}</p>
                       </div>
                       <p className="text-gray-800">{item.result}</p>
+                      {item.s3url && (
+                        <button
+                          onClick={() => handleShowImage(item.s3url)}
+                          className="mt-3 flex items-center text-blue-600 hover:text-blue-700"
+                        >
+                          <svg
+                            className="w-5 h-5 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          View Image
+                        </button>
+                      )}
+                      {/* 이미지 모달 컴포넌트 추가 */}
+                      {showModal && selectedImage && (
+                        <ImageModal
+                          imageUrl={selectedImage}
+                          onClose={() => setShowModal(false)}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -324,6 +381,41 @@ function Main() {
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toISOString().slice(0, 19).replace("T", " ");
+};
+
+// 이미지 모달 컴포넌트
+const ImageModal = ({ imageUrl, onClose }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center p-4">
+      <div className="relative bg-white rounded-lg max-w-2xl w-full">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <div className="p-4">
+          <img
+            src={imageUrl}
+            alt="Excuse visualization"
+            className="w-full rounded-lg"
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Main;
