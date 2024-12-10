@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+![Excuse Smith Logo](excuse-artist-logo.gif)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An AI-powered excuse generator that creates both plausible and creative excuses as vibe and between formal email and short message as format, tailored to your needs, complete with matching images and email integration.
 
-## Available Scripts
+## Demo
 
-In the project directory, you can run:
+![Demo](./Excuse%20Artist.gif)
 
-### `npm start`
+## Architecture
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+![AWS Architecture](./architecture.png)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+- **Custom Excuse Generation**: Generate unique excuses using OpenAI and Mistral AI, with adjustable settings for creativity and formality
+- **Visual Enhancement**: AI-generated images to complement your excuses
+- **Style Preferences**: Toggle between creative and plausible excuses, formal emails and short messages
+- **Google Integration**:
+  - Seamless login with Google authentication
+  - Direct excuse delivery through Gmail
+- **History Management**: Store and retrieve your previous excuses and generated images
+- **User Convenience**:
+  - One-click copy functionality for quick excuse sharing
+  - Preview feature to review your excuse before sending
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech Stack
 
-### `npm run build`
+- **Frontend**: React.js
+- **Backend Services**: AWS Suite including:
+  - Lambda
+  - API Gateway
+  - S3
+  - DynamoDB
+  - Other AWS services (list specific services used)
+- **Authentication**: Google OAuth
+- **AI Integration**:
+  - OpenAI for primary excuse generation
+  - Mistral AI for alternative excuse generation
+  - Image generation AI
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/excuse-smith.git
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Navigate to the project directory
+cd excuse-smith
 
-### `npm run eject`
+# Install dependencies
+npm install
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Start the development server
+npm start
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Environment Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```env
+REACT_APP_API_ENDPOINT=your_api_endpoint
+REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id
+REACT_APP_OPENAI_API_KEY=your_openai_api_key
+REACT_APP_MISTRAL_API_KEY=your_mistral_api_key
+# Add other necessary environment variables
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Usage
 
-## Learn More
+1. Log in using your Google account
+2. Choose your excuse preferences:
+   - Creativity level (plausible ↔ creative)
+   - Format (formal email ↔ short message)
+3. Enter your situation
+4. Get your AI-generated excuse with matching image
+5. Send directly via Gmail or copy to clipboard
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contributing
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+We welcome contributions to Excuse Smith! Please follow these steps:
 
-### Code Splitting
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## License
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
