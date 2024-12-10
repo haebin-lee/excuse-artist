@@ -4,7 +4,7 @@ An AI-powered excuse generator that creates both plausible and creative excuses 
 
 ## Demo
 
-![Demo](./doc/excuse-artist-demo.gif)
+![Demo](./doc/excuse-artist-demo2.gif)
 
 ## Architecture
 
